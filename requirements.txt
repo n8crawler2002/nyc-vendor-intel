@@ -1,0 +1,4 @@
+pandas>=2.0
+folium>=0.15
+geopy>=2.4
+requests>=2.31
