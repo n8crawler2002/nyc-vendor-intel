@@ -1,0 +1,6 @@
+data/raw/
+data/clean/
+output/
+__pycache__/
+*.pyc
+.env
