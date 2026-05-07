@@ -79,7 +79,7 @@ LEFT JOIN (
     FROM   violations
     WHERE  LENGTH(full_name) >= 3
     GROUP  BY violation_location_borough
-) v ON c.borough = v.borough
+) v ON UPPER(c.borough) = UPPER(v.borough)
 ORDER  BY vendors_per_hub DESC;
 
 -- @name: Monthly violation trend (seasonality check)
@@ -93,13 +93,13 @@ GROUP  BY month
 ORDER  BY month;
 
 -- @name: Top charge codes (what are vendors actually cited for?)
--- This reveals which violations CartZero could help reduce.
-SELECT "charge_1:_code_description" AS charge,
+-- Column name after cleaning: "Charge 1: Code Description" → charge_1_code_description
+SELECT charge_1_code_description AS charge,
        COUNT(*) AS occurrences,
        ROUND(AVG(paid_amount_clean), 2) AS avg_fine
 FROM   violations
-WHERE  "charge_1:_code_description" IS NOT NULL
-  AND  "charge_1:_code_description" != ''
+WHERE  charge_1_code_description IS NOT NULL
+  AND  charge_1_code_description != ''
 GROUP  BY charge
 ORDER  BY occurrences DESC
 LIMIT  15;

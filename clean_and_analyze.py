@@ -404,20 +404,29 @@ def phase4_sql(datasets: dict):
     # ── Load violations ────────────────────────────────────────────
     df = datasets["violations_clean"]
     mfv = df[df["is_mfv"]].copy()
-    # Slim down columns for SQL — keep what matters operationally
+
+    # Select columns for SQL — keep what matters operationally
+    # Include first charge code column for violation type analysis
     sql_cols = [
         "Ticket Number", "FULL_NAME", "Violation Location (Borough)",
         "violation_date", "Paid Amount_clean", "Penalty Imposed_clean",
-        "is_mfv"
+        "is_mfv",
     ]
+    # Dynamically add the first charge code column if it exists
+    charge_cols = [c for c in mfv.columns if "Code Description" in c]
+    if charge_cols:
+        sql_cols.append(charge_cols[0])  # e.g. "Charge 1: Code Description"
+
     existing = [c for c in sql_cols if c in mfv.columns]
     mfv_slim = mfv[existing].copy()
     mfv_slim.columns = [
-        c.lower().replace(" ", "_").replace("(", "").replace(")", "")
+        c.lower().replace(" ", "_").replace("(", "").replace(")", "").replace(":", "").replace("#", "")
         for c in mfv_slim.columns
     ]
+    # Print actual column names for debugging SQL queries
+    print(f"\n  SQL column names: {list(mfv_slim.columns)}")
     mfv_slim.to_sql("violations", conn, if_exists="replace", index=False)
-    print(f"\n  violations table: {len(mfv_slim):,} rows")
+    print(f"  violations table: {len(mfv_slim):,} rows")
 
     # ── Load commissaries ──────────────────────────────────────────
     comm = datasets.get("commissaries_clean", pd.DataFrame())
@@ -532,12 +541,33 @@ def load_queries() -> dict:
                 SELECT borough, COUNT(*) AS hubs FROM commissaries GROUP BY borough
             ) c
             LEFT JOIN (
-                SELECT violation_location_borough AS borough, COUNT(DISTINCT full_name) AS vendors
+                SELECT violation_location_borough AS borough,
+                       COUNT(DISTINCT full_name) AS vendors
                 FROM violations
                 WHERE LENGTH(full_name) >= 3
                 GROUP BY violation_location_borough
             ) v ON UPPER(c.borough) = UPPER(v.borough)
             ORDER BY vendors_per_hub DESC;
+        """,
+        "Monthly violation trend (seasonality check)": """
+            SELECT SUBSTR(violation_date, 6, 2) AS month,
+                   COUNT(*) AS violations,
+                   ROUND(AVG(paid_amount_clean), 2) AS avg_paid
+            FROM violations
+            WHERE violation_date IS NOT NULL
+            GROUP BY month
+            ORDER BY month;
+        """,
+        "Top charge codes (what are vendors actually cited for?)": """
+            SELECT charge_1_code_description AS charge,
+                   COUNT(*) AS occurrences,
+                   ROUND(AVG(paid_amount_clean), 2) AS avg_fine
+            FROM violations
+            WHERE charge_1_code_description IS NOT NULL
+              AND charge_1_code_description != ''
+            GROUP BY charge
+            ORDER BY occurrences DESC
+            LIMIT 15;
         """,
     }
 
