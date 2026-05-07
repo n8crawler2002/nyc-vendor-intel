@@ -3,7 +3,7 @@
 NYC Street Vendor Intelligence — Data Quality & Anomaly Detection
 =================================================================
 
-Author:  Bodo Hoenen | be-eclectic.com
+Author:  Bodo Becker | be-eclectic.com
 Context: CartZero — clean energy battery swap for NYC food cart vendors
 Purpose: Demonstrate operational data competence:
          ingest, clean, detect anomalies, query, visualize.
@@ -691,7 +691,7 @@ def phase5_map(datasets: dict):
 def main():
     print("NYC Street Vendor Intelligence")
     print(f"Run: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
-    print("Author: Bodo Hoenen | be-eclectic.com")
+    print("Author: Bodo Becker | be-eclectic.com")
 
     datasets = phase1_ingest()
     datasets = phase2_clean(datasets)
