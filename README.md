@@ -65,4 +65,4 @@ Python 3.10+ · pandas · SQLite · Folium · geopy · requests
 
 ## Author
 
-**Bodo Hoenen** — [be-eclectic.com](https://be-eclectic.com) · Climate Reality Leader · German Solar Prize 2019
+**Bodo Becker** — [be-eclectic.com](https://be-eclectic.com) · Climate Reality Leader · German Solar Prize 2019
