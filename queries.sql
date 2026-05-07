@@ -94,12 +94,12 @@ ORDER  BY month;
 
 -- @name: Top charge codes (what are vendors actually cited for?)
 -- This reveals which violations CartZero could help reduce.
-SELECT charge_1_code_description AS charge,
+SELECT "charge_1:_code_description" AS charge,
        COUNT(*) AS occurrences,
        ROUND(AVG(paid_amount_clean), 2) AS avg_fine
 FROM   violations
-WHERE  charge_1_code_description IS NOT NULL
-  AND  charge_1_code_description != ''
+WHERE  "charge_1:_code_description" IS NOT NULL
+  AND  "charge_1:_code_description" != ''
 GROUP  BY charge
 ORDER  BY occurrences DESC
 LIMIT  15;
