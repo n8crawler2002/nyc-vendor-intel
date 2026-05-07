@@ -536,7 +536,7 @@ def load_queries() -> dict:
                 FROM violations
                 WHERE LENGTH(full_name) >= 3
                 GROUP BY violation_location_borough
-            ) v ON c.borough = v.borough
+            ) v ON UPPER(c.borough) = UPPER(v.borough)
             ORDER BY vendors_per_hub DESC;
         """,
     }
