@@ -59,6 +59,20 @@ data/clean/
 - **Incomplete addresses:** Geocoding falls back to borough centroid with random jitter to prevent marker stacking
 - **Apple Numbers format:** The commissary database was originally in `.numbers` format (protobuf-wrapped IWA files inside a ZIP) — extracted via string parsing in a separate preprocessing step
 
+## Data quality observations
+
+Findings from the anomaly detection that illustrate real-world messiness in municipal datasets:
+
+- **`NKNOWN` vendor (128 violations, $11,246 paid):** A truncated placeholder for `UNKNOWN` — violations where the officer did not record the vendor's name. Not a data error to fix, but a process artifact to exclude from vendor-level analysis. Tells you something about DOHMH field operations, not about a person.
+
+- **71 vendors with high violation counts but $0 paid:** Either a payment recording lag, dismissed cases, or chronic non-compliance. Operationally: these are not first-contact targets for a sales conversation.
+
+- **912 multi-borough vendors:** Same name appearing in more than one borough. Could be a multi-cart operator (legitimate) or a name collision (two different people named Mohammed Rahman). Requires field verification — data alone cannot disambiguate.
+
+- **1,009 enforcement blitz patterns:** Vendors receiving 3+ violations within 7 days. This is a targeted sweep, not typical vendor behavior. Skews violation counts if used as a proxy for operator size.
+
+- **12,770 records where paid < 10% of penalty:** Suggests widespread use of payment plans, adjudication reductions, or data entry timing gaps between penalty assessment and payment recording.
+
 ## Tech stack
 
 Python 3.10+ · pandas · SQLite · Folium · geopy · requests
